@@ -9,6 +9,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.memorygame.data.GamePreferences
 import com.example.memorygame.ui.MemoryGameScreen
@@ -54,7 +57,29 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         mediaPlayer.release() // освобождаем ресурсы
     }
+
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch {
+            val musicEnabled = gamePreferences.musicEnabled.first()
+            if (musicEnabled && !mediaPlayer.isPlaying) {
+                mediaPlayer.start()
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        }
+    }
+
+
+
 }
+
+
 
 @Composable
 fun MemoryGameApp(
